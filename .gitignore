@@ -1,0 +1,27 @@
+# .env file containing sensitive data (never commit this)
+.env
+
+# Python virtual environment directory
+venv/
+
+# Ignore the general migrations folder (but not 'migrations/versions')
+migrations/*
+!migrations/versions/
+
+# Ignore compiled Python files
+__pycache__/
+*.pyc
+
+# Ignore Flask logs
+*.log
+
+# Ignore .env example if sensitive information is inside (otherwise, track as a template)
+.env.example
+
+# Ignore IDE/editor-specific files (e.g., VSCode, PyCharm)
+.vscode/
+.idea/
+
+# Ignore system files (macOS, Windows)
+.DS_Store
+Thumbs.db
