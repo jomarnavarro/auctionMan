@@ -10,10 +10,12 @@ auth_bp = Blueprint('auth', __name__)
 @auth_bp.route('/register', methods=['POST'])
 def register():
     data = request.get_json()
+    if not ('email' in data and 'password' in data and 'username' in data):
+        return jsonify({"message": "Registration data missing.  Make sure you include username, password and email"}), 400
     if User.query.filter_by(username=data['username']).first():
-        return jsonify({"error": "Username already exists"}), 400
+        return jsonify({"message": "Username already exists"}), 400
     if User.query.filter_by(email=data['email']).first():
-        return jsonify({"error": "Email already registered"}), 400
+        return jsonify({"message": "Email already registered"}), 400
 
     user = User(
         username=data['username'],
@@ -28,6 +30,7 @@ def register():
 @auth_bp.route('/login', methods=['POST'])
 def login():
     data = request.get_json()
+
     user = User.query.filter_by(username=data['username']).first()
     if not user or not check_password(user.password, data['password']):
         return jsonify({"error": "Invalid username or password"}), 401
