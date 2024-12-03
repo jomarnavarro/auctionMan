@@ -12,6 +12,12 @@ def register():
     data = request.get_json()
     if not ('email' in data and 'password' in data and 'username' in data):
         return jsonify({"message": "Registration data missing.  Make sure you include username, password and email"}), 400
+    if len(data['username']) > 80:
+        return jsonify({"message": "Username too long."}), 400
+    if len(data['email']) > 120:
+        return jsonify({"message": "Email too long."}), 400
+    if len(data['password']) > 128:
+        return jsonify({"message": "Password too long."}), 400
     if User.query.filter_by(username=data['username']).first():
         return jsonify({"message": "Username already exists"}), 400
     if User.query.filter_by(email=data['email']).first():
