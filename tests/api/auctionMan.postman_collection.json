@@ -1,0 +1,1140 @@
+{
+	"info": {
+		"_postman_id": "137f3073-2242-4be9-be95-ead42dcb057e",
+		"name": "auctionMan",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "6318902",
+		"_collection_link": "https://restless-meadow-647915.postman.co/workspace/New-Team-Workspace~90e1599b-c405-4bf6-9d23-2e074d08585c/collection/6318902-137f3073-2242-4be9-be95-ead42dcb057e?action=share&source=collection_link&creator=6318902"
+	},
+	"item": [
+		{
+			"name": "login unregistered user",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 401\", function () {\r",
+							"    pm.response.to.have.status(401);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Response contains the key 'access_token'\", function () {\r",
+							"    let jsonData = pm.response.json(); // Parse the response body as JSON\r",
+							"    pm.expect(jsonData).not.to.have.property('access_token'); \r",
+							"    pm.expect(jsonData).to.have.property('error');\r",
+							"    pm.expect(jsonData['error']).to.eql('Invalid username or password');    \r",
+							"});\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"const randomNumber = Math.floor(Math.random() * 1000000) + 1\r",
+							"pm.environment.set(\"sequence\", randomNumber);\r",
+							"pm.environment.set('username', 'omar' + randomNumber);"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"username\": \"{{username}}\",\r\n    \"password\": \"{{password}}\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/login",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"login"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "register",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 201\", function () {\r",
+							"    pm.response.to.have.status(201);\r",
+							"});\r",
+							"var jsonData = pm.response.json();\r",
+							"pm.test(\"Successful User Creation\", function () {\r",
+							"    var jsonData = pm.response.json();\r",
+							"    pm.expect(jsonData['message']).to.eql('User registered successfully');\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"const randomNumber = Math.floor(Math.random() * 1000000) + 1\r",
+							"pm.environment.set(\"sequence\", randomNumber);\r",
+							"pm.environment.set('username', 'omar' + randomNumber);\r",
+							"\r",
+							"pm.environment.set('email', `jomarnavarro${randomNumber}@gmail.com`);"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"username\": \"{{username}}\",\r\n    \"email\": \"{{email}}\",\r\n    \"password\": \"T3st#1234\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/register",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"register"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "login",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"const atob = require('atob');\r",
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Response contains the key 'access_token'\", function () {\r",
+							"    let jsonData = pm.response.json(); // Parse the response body as JSON\r",
+							"    pm.expect(jsonData).to.have.property('access_token'); \r",
+							"    // Validate the presence of the key\r",
+							"    pm.expect(jsonData.access_token).to.not.be.null;\r",
+							"    pm.environment.set('jwtToken', jsonData.access_token);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"JWT Token has correct identity\", function () {\r",
+							"    let jsonData = pm.response.json();\r",
+							"    let access_token = jsonData.access_token;\r",
+							"    let payloadBase64 = access_token.split('.')[1];\r",
+							"    console.log(`payloadBase64 ${payloadBase64}`);\r",
+							"    let decodedPayload = atob(payloadBase64);\r",
+							"    console.log(`decodedPayload ${decodedPayload}`);\r",
+							"    let payloadObject = JSON.parse(decodedPayload);\r",
+							"    console.log(`payloadObject ${payloadObject}`);\r",
+							"    let sub = payloadObject.sub;\r",
+							"    console.log(`identity ${sub}`);\r",
+							"    pm.expect(sub).to.equal(pm.environment.get('username')); \r",
+							"});\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"username\": \"{{username}}\",\r\n    \"password\": \"{{password}}\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/login",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"login"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "profile",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Response contains the key 'email'\", function () {\r",
+							"    let jsonData = pm.response.json(); // Parse the response body as JSON\r",
+							"    pm.expect(jsonData).to.have.property('email'); \r",
+							"    pm.expect(jsonData.email).to.not.be.null;\r",
+							"    pm.expect(jsonData.email).to.eql(pm.environment.get('email'));\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Response contains the key 'id'\", function () {\r",
+							"    let jsonData = pm.response.json(); // Parse the response body as JSON\r",
+							"    pm.expect(jsonData).to.have.property('id'); \r",
+							"    pm.expect(jsonData.id).to.not.be.null;\r",
+							"});\r",
+							"\r",
+							"\r",
+							"pm.test(\"Response contains the key 'username'\", function () {\r",
+							"    let jsonData = pm.response.json(); // Parse the response body as JSON\r",
+							"    pm.expect(jsonData).to.have.property('username'); \r",
+							"    pm.expect(jsonData.username).to.not.be.null;\r",
+							"    pm.expect(jsonData.username).to.eql(pm.environment.get('username'));\r",
+							"});\r",
+							"\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "jwt",
+					"jwt": [
+						{
+							"key": "algorithm",
+							"value": "HS256",
+							"type": "string"
+						},
+						{
+							"key": "isSecretBase64Encoded",
+							"value": false,
+							"type": "boolean"
+						},
+						{
+							"key": "payload",
+							"value": "{}",
+							"type": "string"
+						},
+						{
+							"key": "addTokenTo",
+							"value": "header",
+							"type": "string"
+						},
+						{
+							"key": "headerPrefix",
+							"value": "Bearer",
+							"type": "string"
+						},
+						{
+							"key": "queryParamKey",
+							"value": "token",
+							"type": "string"
+						},
+						{
+							"key": "header",
+							"value": "{}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{jwtToken}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/profile",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"profile"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "login incorrect password",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 401\", function () {\r",
+							"    pm.response.to.have.status(401);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Response does not contain the key 'access_token'\", function () {\r",
+							"    let jsonData = pm.response.json(); // Parse the response body as JSON\r",
+							"    pm.expect(jsonData).not.to.have.property('access_token'); \r",
+							"    pm.expect(jsonData).to.have.property('error');\r",
+							"    pm.expect(jsonData['error']).to.eql('Invalid username or password');    \r",
+							"});\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"username\": \"{{username}}\",\r\n    \"password\": \"{{badpassword}}\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/login",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"login"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "register missing username",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 400\", function () {\r",
+							"    pm.response.to.have.status(400);\r",
+							"});\r",
+							"var jsonData = pm.response.json();\r",
+							"pm.test(\"Unsuccessful User Creation\", function () {\r",
+							"    var jsonData = pm.response.json();\r",
+							"    pm.expect(jsonData['message']).to.eql('Registration data missing.  Make sure you include username, password and email');\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"email\": \"{{email}}\",\r\n    \"password\": \"T3st#1234\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/register",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"register"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "register missing email",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 400\", function () {\r",
+							"    pm.response.to.have.status(400);\r",
+							"});\r",
+							"var jsonData = pm.response.json();\r",
+							"pm.test(\"Unsuccessful User Creation\", function () {\r",
+							"    var jsonData = pm.response.json();\r",
+							"    pm.expect(jsonData['message']).to.eql('Registration data missing.  Make sure you include username, password and email');\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"username\": \"{{eusername}}\",\r\n    \"password\": \"T3st#1234\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/register",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"register"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "register missing password",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 400\", function () {\r",
+							"    pm.response.to.have.status(400);\r",
+							"});\r",
+							"var jsonData = pm.response.json();\r",
+							"pm.test(\"Unsuccessful User Creation\", function () {\r",
+							"    var jsonData = pm.response.json();\r",
+							"    pm.expect(jsonData['message']).to.eql('Registration data missing.  Make sure you include username, password and email');\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"username\": \"{{eusername}}\",\r\n    \"email\": \"{{email}}\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/register",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"register"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "register already taken username",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 400\", function () {\r",
+							"    pm.response.to.have.status(400);\r",
+							"});\r",
+							"var jsonData = pm.response.json();\r",
+							"pm.test(\"Unsuccessful User Creation\", function () {\r",
+							"    var jsonData = pm.response.json();\r",
+							"    pm.expect(jsonData['message']).to.eql('Username already exists');\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"username\": \"{{username}}\",\r\n    \"email\": \"{{email}}\",\r\n    \"password\":\"T3st#1234\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/register",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"register"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "register already taken email",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 400\", function () {\r",
+							"    pm.response.to.have.status(400);\r",
+							"});\r",
+							"var jsonData = pm.response.json();\r",
+							"pm.test(\"Unsuccessful User Creation\", function () {\r",
+							"    var jsonData = pm.response.json();\r",
+							"    pm.expect(jsonData['message']).to.eql('Email already registered');\r",
+							"});\r",
+							"pm.environment.set('username', 'omar' + pm.environment.get('sequence'));"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"const randomNumber = Math.floor(Math.random() * 1000000) + 1\r",
+							"pm.environment.set('username', 'omar' + randomNumber);"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"username\": \"{{username}}\",\r\n    \"email\": \"{{email}}\",\r\n    \"password\":\"T3st#1234\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/register",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"register"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "register username 80 chars",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 201\", function () {\r",
+							"    pm.response.to.have.status(201);\r",
+							"});\r",
+							"var jsonData = pm.response.json();\r",
+							"pm.test(\"Successful User Creation\", function () {\r",
+							"    var jsonData = pm.response.json();\r",
+							"    pm.expect(jsonData['message']).to.eql('User registered successfully');\r",
+							"});\r",
+							"\r",
+							"pm.environment.set('username', 'omar' + pm.environment.get('sequence'));"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"function generateRandomString(n) {\r",
+							"    const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';\r",
+							"    let result = '';\r",
+							"    for (let i = 0; i < n; i++) {\r",
+							"        const randomIndex = Math.floor(Math.random() * characters.length);\r",
+							"        result += characters[randomIndex];\r",
+							"    }\r",
+							"    return result;\r",
+							"}\r",
+							"\r",
+							"const longUser = generateRandomString(80);\r",
+							"\r",
+							"pm.environment.set('username', longUser);\r",
+							"\r",
+							"const randomNumber = Math.floor(Math.random() * 1000000) + 1\r",
+							"pm.environment.set(\"sequence\", randomNumber);\r",
+							"\r",
+							"\r",
+							"pm.environment.set('email', `jomarnavarro+${randomNumber}@gmail.com`);"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"username\": \"{{username}}\",\r\n    \"email\": \"{{email}}\",\r\n    \"password\":\"T3st#1234\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/register",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"register"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "register username too long",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 400\", function () {\r",
+							"    pm.response.to.have.status(400);\r",
+							"});\r",
+							"var jsonData = pm.response.json();\r",
+							"pm.test(\"Unsuccessful User Creation\", function () {\r",
+							"    var jsonData = pm.response.json();\r",
+							"    pm.expect(jsonData['message']).to.eql('Username too long.');\r",
+							"});\r",
+							"\r",
+							"pm.environment.set('username', 'omar' + pm.environment.get('sequence'));"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"function generateRandomString(n) {\r",
+							"    const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';\r",
+							"    let result = '';\r",
+							"    for (let i = 0; i < n; i++) {\r",
+							"        const randomIndex = Math.floor(Math.random() * characters.length);\r",
+							"        result += characters[randomIndex];\r",
+							"    }\r",
+							"    return result;\r",
+							"}\r",
+							"\r",
+							"const longUser = generateRandomString(81);\r",
+							"\r",
+							"pm.environment.set('username', longUser);\r",
+							"\r",
+							"const randomNumber = Math.floor(Math.random() * 1000000) + 1\r",
+							"pm.environment.set(\"sequence\", randomNumber);\r",
+							"\r",
+							"console.log(longUser);\r",
+							"pm.environment.set('email', `jomarnavarro+${randomNumber}@gmail.com`);"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"username\": \"{{username}}\",\r\n    \"email\": \"{{email}}\",\r\n    \"password\":\"T3st#1234\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/register",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"register"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "register email 120 chars",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 201\", function () {\r",
+							"    pm.response.to.have.status(201);\r",
+							"});\r",
+							"var jsonData = pm.response.json();\r",
+							"pm.test(\"Successful User Creation\", function () {\r",
+							"    var jsonData = pm.response.json();\r",
+							"    pm.expect(jsonData['message']).to.eql('User registered successfully');\r",
+							"});\r",
+							"const sequence = pm.environment.get('sequence');\r",
+							"pm.environment.set('username', 'omar' + pm.environment.get('sequence'));\r",
+							"\r",
+							"pm.environment.set('email', `jomarnavarro+${sequence}@gmail.com`);"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"function generateRandomString(n) {\r",
+							"    const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';\r",
+							"    let result = '';\r",
+							"    for (let i = 0; i < n; i++) {\r",
+							"        const randomIndex = Math.floor(Math.random() * characters.length);\r",
+							"        result += characters[randomIndex];\r",
+							"    }\r",
+							"    return result;\r",
+							"}\r",
+							"\r",
+							"\r",
+							"const randomNumber = Math.floor(Math.random() * 1000000) + 1\r",
+							"pm.environment.set(\"sequence\", randomNumber);\r",
+							"\r",
+							"pm.environment.set('username', 'omar' + randomNumber);\r",
+							"const handle = generateRandomString(110);\r",
+							"pm.environment.set('email', handle + `@gmail.com`);"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"username\": \"{{username}}\",\r\n    \"email\": \"{{email}}\",\r\n    \"password\":\"T3st#1234\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/register",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"register"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "register email too long",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 400\", function () {\r",
+							"    pm.response.to.have.status(400);\r",
+							"});\r",
+							"var jsonData = pm.response.json();\r",
+							"pm.test(\"Unsuccessful User Creation\", function () {\r",
+							"    var jsonData = pm.response.json();\r",
+							"    pm.expect(jsonData['message']).to.eql('Email too long.');\r",
+							"});\r",
+							"\r",
+							"pm.environment.set('username', 'omar' + pm.environment.get('sequence'));\r",
+							"\r",
+							"pm.environment.set('email', `jomarnavarro+${pm.environment.get('sequence')}@gmail.com`);\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"function generateRandomString(n) {\r",
+							"    const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';\r",
+							"    let result = '';\r",
+							"    for (let i = 0; i < n; i++) {\r",
+							"        const randomIndex = Math.floor(Math.random() * characters.length);\r",
+							"        result += characters[randomIndex];\r",
+							"    }\r",
+							"    return result;\r",
+							"}\r",
+							"\r",
+							"\r",
+							"const randomNumber = Math.floor(Math.random() * 1000000) + 1\r",
+							"pm.environment.set(\"sequence\", randomNumber);\r",
+							"\r",
+							"pm.environment.set('username', 'omar' + randomNumber);\r",
+							"const handle = generateRandomString(111);\r",
+							"pm.environment.set('email', handle + `@gmail.com`);"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"username\": \"{{username}}\",\r\n    \"email\": \"{{email}}\",\r\n    \"password\":\"T3st#1234\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/register",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"register"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "register password 128 chars long",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 201\", function () {\r",
+							"    pm.response.to.have.status(201);\r",
+							"});\r",
+							"var jsonData = pm.response.json();\r",
+							"pm.test(\"Successful User Creation\", function () {\r",
+							"    var jsonData = pm.response.json();\r",
+							"    pm.expect(jsonData['message']).to.eql('User registered successfully');\r",
+							"});\r",
+							"const sequence = pm.environment.get('sequence');\r",
+							"pm.environment.set('username', 'omar' + pm.environment.get('sequence'));\r",
+							"\r",
+							"pm.environment.set('email', `jomarnavarro+${sequence}@gmail.com`);\r",
+							"pm.environment.set('password', 'T3st#1234');"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"function generateRandomString(n) {\r",
+							"    const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';\r",
+							"    let result = '';\r",
+							"    for (let i = 0; i < n; i++) {\r",
+							"        const randomIndex = Math.floor(Math.random() * characters.length);\r",
+							"        result += characters[randomIndex];\r",
+							"    }\r",
+							"    return result;\r",
+							"}\r",
+							"\r",
+							"\r",
+							"const randomNumber = Math.floor(Math.random() * 1000000) + 1\r",
+							"pm.environment.set(\"sequence\", randomNumber);\r",
+							"\r",
+							"pm.environment.set('username', 'omar' + randomNumber);\r",
+							"const handle = generateRandomString(110);\r",
+							"pm.environment.set('email', `jomarnavarro+${randomNumber}@gmail.com`);\r",
+							"pm.environment.set('password', generateRandomString(128));\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"username\": \"{{username}}\",\r\n    \"email\": \"{{email}}\",\r\n    \"password\":\"{{password}}\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/register",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"register"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "register email too long Copy",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 400\", function () {\r",
+							"    pm.response.to.have.status(400);\r",
+							"});\r",
+							"var jsonData = pm.response.json();\r",
+							"pm.test(\"Unsuccessful User Creation\", function () {\r",
+							"    var jsonData = pm.response.json();\r",
+							"    pm.expect(jsonData['message']).to.eql('Password too long.');\r",
+							"});\r",
+							"\r",
+							"pm.environment.set('username', 'omar' + pm.environment.get('sequence'));\r",
+							"\r",
+							"pm.environment.set('email', `jomarnavarro+${pm.environment.get('sequence')}@gmail.com`);\r",
+							"pm.environment.set('password', 'T3st#1234');\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"function generateRandomString(n) {\r",
+							"    const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';\r",
+							"    let result = '';\r",
+							"    for (let i = 0; i < n; i++) {\r",
+							"        const randomIndex = Math.floor(Math.random() * characters.length);\r",
+							"        result += characters[randomIndex];\r",
+							"    }\r",
+							"    return result;\r",
+							"}\r",
+							"\r",
+							"\r",
+							"const randomNumber = Math.floor(Math.random() * 1000000) + 1\r",
+							"pm.environment.set(\"sequence\", randomNumber);\r",
+							"\r",
+							"pm.environment.set('username', 'omar' + randomNumber);\r",
+							"pm.environment.set('email', `jomarnavarro+${randomNumber}@gmail.com`);\r",
+							"const longPass = generateRandomString(129);\r",
+							"pm.environment.set('password', longPass);"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"username\": \"{{username}}\",\r\n    \"email\": \"{{email}}\",\r\n    \"password\":\"{{password}}\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/register",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"register"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		}
+	]
+}
